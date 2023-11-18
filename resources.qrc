@@ -1,0 +1,20 @@
+<RCC>
+  <qresource prefix="icons">
+    <file>icons/align.svg</file>
+    <file>icons/capture.svg</file>
+    <file>icons/close.svg</file>
+    <file>icons/copy.svg</file>
+    <file>icons/minus.svg</file>
+    <file>icons/report.svg</file>
+    <file>icons/restore.svg</file>
+    <file>icons/save.svg</file>
+    <file>icons/square.svg</file>
+    <file>icons/stop.svg</file>
+    <file>icons/turnOff.svg</file>
+    <file>icons/turnOn.svg</file>
+  </qresource>
+  <qresource prefix="logo">
+    <file>logo.png</file>
+    <file>logo.ico</file>
+  </qresource>
+</RCC>
