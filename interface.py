@@ -13,6 +13,7 @@ import resources
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 import cv2
+import numpy as np
 
 
 class Ui_MainWindow(object):
@@ -331,9 +332,9 @@ class Ui_MainWindow(object):
         self.verticalLayout_6.setContentsMargins(10, 10, 10, 10)
         self.verticalLayout_6.setSpacing(5)
         self.verticalLayout_6.setObjectName("verticalLayout_6")
-        self.cameraFramePage = QtWidgets.QFrame(self.cameraPage)
-        self.cameraFramePage.setFrameShape(QtWidgets.QFrame.StyledPanel)
-        self.cameraFramePage.setFrameShadow(QtWidgets.QFrame.Raised)
+        self.cameraFramePage = QtWidgets.QLabel(self.cameraPage)
+        self.cameraFramePage.setFrameShape(QtWidgets.QLabel.StyledPanel)
+        self.cameraFramePage.setFrameShadow(QtWidgets.QLabel.Raised)
         self.cameraFramePage.setObjectName("cameraFramePage")
         self.verticalLayout_6.addWidget(self.cameraFramePage)
         self.stackedWidget_camera.addWidget(self.cameraPage)
@@ -399,9 +400,61 @@ class Ui_MainWindow(object):
         self.horizontalLayout_2.addWidget(self.centerContainer)
         self.verticalLayout.addWidget(self.body)
         MainWindow.setCentralWidget(self.centralwidget)
-
         self.retranslateUi(MainWindow)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
+
+
+
+
+
+        self.turnOnCamera.clicked.connect(self.start_video)
+
+
+    def start_video(self):
+        self.ThreadClass = ThreadClass()
+        self.ThreadClass.start()
+        self.ThreadClass.Imageupd.connect(self.Imageupd_slot)
+
+    def stop_video(self):
+        if hasattr(self, 'ThreadClass') and self.ThreadClass.isRunning():
+            self.ThreadClass.stop()
+            self.ThreadClass.wait()
+            self.camera_running = False
+
+
+#Qt.KeepAspectRatio
+
+    # def Imageupd_slot(self, Image):
+    #     label_size = self.cameraFramePage.size()
+    #     scaled_image = Image.scaled(label_size, Qt.IgnoreAspectRatio)
+    #     self.cameraFramePage.setPixmap(QPixmap.fromImage(scaled_image))
+
+    def Imageupd_slot(self, Image):
+        label_size = self.cameraFramePage.size()
+        # Obtiene las dimensiones de la imagen y el contenedor
+        image_size = Image.size()
+        container_width, container_height = label_size.width(), label_size.height()
+        # Calcula la escala para mantener la relación de aspecto
+        width_ratio = container_width / image_size.width()
+        height_ratio = container_height / image_size.height()
+        scale_factor = min(width_ratio, height_ratio)
+        # Escala la imagen proporcionalmente
+        scaled_image = Image.scaled(image_size * scale_factor, Qt.KeepAspectRatio)
+  
+        # Calcula el área para centrar la imagen en el contenedor
+        x_offset = (container_width - scaled_image.width()) / 2
+        y_offset = (container_height - scaled_image.height()) / 2
+        # Crea un pixmap y lo muestra en el QLabel
+        pixmap = QPixmap.fromImage(scaled_image)
+        self.cameraFramePage.setPixmap(pixmap)
+        self.cameraFramePage.setAlignment(Qt.AlignCenter)
+
+    def toggle_pause(self):
+        self.paused = not self.paused
+    
+
+
+
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
@@ -414,3 +467,24 @@ class Ui_MainWindow(object):
         self.systemInfoBtn.setToolTip(_translate("MainWindow", "System Information"))
         self.systemInfoBtn.setText(_translate("MainWindow", "System Info."))
 
+
+
+
+class ThreadClass(QThread):
+    Imageupd = pyqtSignal(QImage)
+
+    def run(self):
+        self.thread = True
+        cap = cv2.VideoCapture(0)
+        while self.thread:
+            ret, frame = cap.read()
+            if ret:
+                Image = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+                flip = cv2.flip(Image, 1)
+                convert_QT = QImage(flip.data, flip.shape[1], flip.shape[0], QImage.Format_RGB888)
+                pic = convert_QT.scaled(640, 480, Qt.KeepAspectRatio)
+                self.Imageupd.emit(pic)
+
+    def stop(self):
+        self.thread = False
+        self.quit()

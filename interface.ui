@@ -725,12 +725,9 @@
                       <number>10</number>
                      </property>
                      <item>
-                      <widget class="QFrame" name="cameraFramePage">
-                       <property name="frameShape">
-                        <enum>QFrame::StyledPanel</enum>
-                       </property>
-                       <property name="frameShadow">
-                        <enum>QFrame::Raised</enum>
+                      <widget class="QLabel" name="cameraFramePage">
+                       <property name="text">
+                        <string/>
                        </property>
                       </widget>
                      </item>
