@@ -2,7 +2,6 @@
 	"QMainWindow":[
 		{
 			"tittle":"MarsRover-Laboratory",
-			"icon":":logo.png",
 			"frameless": true,
 			"transluscentBg": true,
 			"sizeGrip": "size_grip",
