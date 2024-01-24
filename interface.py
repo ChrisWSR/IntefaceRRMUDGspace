@@ -432,9 +432,29 @@ class Ui_MainWindow(object):
 
     def Imageupd_slot(self, Image):
         label_size = self.cameraFramePage.size()
-        scaled_image = Image.scaled(label_size, Qt.IgnoreAspectRatio)
-        self.cameraFramePage.setPixmap(QPixmap.fromImage(scaled_image))
-
+    
+        # Obtiene las dimensiones de la imagen y el contenedor
+        image_size = Image.size()
+        container_width, container_height = label_size.width(), label_size.height()
+    
+        # Calcula la escala para mantener la relación de aspecto
+        width_ratio = container_width / image_size.width()
+        height_ratio = container_height / image_size.height()
+        scale_factor = min(width_ratio, height_ratio)
+    
+        # Escala la imagen proporcionalmente
+        scaled_image = Image.scaled(image_size * scale_factor, Qt.KeepAspectRatio)
+        
+        # Calcula el área para centrar la imagen en el contenedor
+        x_offset = (container_width - scaled_image.width()) / 2
+        y_offset = (container_height - scaled_image.height()) / 2
+    
+        # Crea un pixmap y lo muestra en el QLabel
+        pixmap = QPixmap.fromImage(scaled_image)
+        self.cameraFramePage.setPixmap(pixmap)
+        self.cameraFramePage.setAlignment(Qt.AlignCenter)
+    
+    
 
 
   
