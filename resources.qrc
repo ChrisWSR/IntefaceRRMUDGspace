@@ -15,6 +15,5 @@
   </qresource>
   <qresource prefix="logo">
     <file>logo.png</file>
-    <file>logo.ico</file>
   </qresource>
 </RCC>
