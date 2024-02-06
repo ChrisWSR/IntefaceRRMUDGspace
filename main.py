@@ -96,7 +96,9 @@ class MainWindow(QMainWindow):
         super().__init__()
         self.ui = uic.loadUi("interface.ui",self)
         # Apply the file style.json
-        loadJsonStyle(self, self.ui)    
+        loadJsonStyle(self, self.ui) 
+        self.group_btns_0 = QButtonGroup()  # Add this line to create the button group
+   
 
 
         self.detection = Detection()

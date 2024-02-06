@@ -69,5 +69,24 @@
 			]
 	
 		}
+	],
+
+	"QPushButtonGroup": [
+		{
+			"Buttons": [
+				"homeBtn",
+				"cameraBtn",
+				"sensorsBtn",
+				"systemInfoBtn"
+			],
+			"Style":[{
+				"Active": "background-color: #3E3E3E; ",
+				"NotActive": ""
+			}]			
+		}
 	]
+
+
+	
+	
 }
