@@ -25,6 +25,7 @@ class CameraThread(QThread):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.container_size = None
+        self.ThreadActive = True  # Flag to indicate if the thread should stop
         self.detection = Detection()
         # Connect the ImageUpdate signal of the Detection instance to 
         # the process_frame method of this class
@@ -45,7 +46,7 @@ class CameraThread(QThread):
             if not cap.isOpened():
                 raise RuntimeError("Error opening the camera.")
 
-            while getattr(self, "thread", True):
+            while self.ThreadActive:
                 # Read a frame from the camera
                 ret, frame = cap.read()
                 if ret:
@@ -54,6 +55,11 @@ class CameraThread(QThread):
             cap.release()
         except Exception as e:
             print(f"An error occurred: {e}")
+
+    def stop(self):
+        self.ThreadActive = False
+        self.detection.stop_camera = True
+        self.quit()
 
 
     """
@@ -97,23 +103,25 @@ class MainWindow(QMainWindow):
         self.ui = uic.loadUi("interface.ui",self)
         # Apply the file style.json
         loadJsonStyle(self, self.ui) 
-        self.group_btns_0 = QButtonGroup()  # Add this line to create the button group
-   
 
 
-        self.detection = Detection()
-        self.cameraThread = CameraThread(self.detection)
+        self.cameraThread = CameraThread()
 
         self.turnOnCamera.clicked.connect(self.start_video)
+        self.turnOffCamera.clicked.connect(self.stop_video)
 
     
 
     def start_video(self):
-        self.detection.start()
         self.cameraThread.set_container_size(self.cameraFramePage.size())
         self.cameraThread.start()
         self.cameraThread.ImageUpdated.connect(self.displayImage)
 
+
+    def stop_video(self):
+        self.cameraThread.stop()
+   
+    
 
 
     """
@@ -147,11 +155,6 @@ class MainWindow(QMainWindow):
         self.cameraFramePage.setPixmap(pixmap)
         self.cameraFramePage.setAlignment(Qt.AlignCenter)
 
-    
-    def closeEvent(self, event):
-        self.detection.terminate()
-        self.cameraThread.terminate()
-        event.accept()
     
 
 

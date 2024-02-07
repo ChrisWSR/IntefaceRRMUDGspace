@@ -789,8 +789,20 @@
                 </layout>
                </widget>
               </item>
-              <item alignment="Qt::AlignRight">
+              <item>
                <widget class="QWidget" name="rightMenuContainer_camera" native="true">
+                <property name="minimumSize">
+                 <size>
+                  <width>50</width>
+                  <height>0</height>
+                 </size>
+                </property>
+                <property name="maximumSize">
+                 <size>
+                  <width>70</width>
+                  <height>16777215</height>
+                 </size>
+                </property>
                 <layout class="QVBoxLayout" name="verticalLayout_8">
                  <property name="spacing">
                   <number>0</number>
