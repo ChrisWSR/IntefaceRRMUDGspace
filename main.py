@@ -74,14 +74,14 @@ class CameraThread(QThread):
             frame: Input video frame to be processed.
     """
     def process_frame(self, frame):
-        # Convert the BGR frame to RGB and perform horizontal flipping
         Image_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-        flipped_image = cv2.flip(Image_rgb, 1)
-
-        # Adjust the size of the image based on the dimensions of the container
-        qt_image = QImage(flipped_image.data, flipped_image.shape[1], flipped_image.shape[0], QImage.Format_RGB888)
+        qt_image = QImage(Image_rgb.data, Image_rgb.shape[1], Image_rgb.shape[0], QImage.Format_RGB888)
         scaled_image = qt_image.scaled(self.container_size, Qt.IgnoreAspectRatio)
         self.ImageUpdated.emit(scaled_image)
+
+
+    
+
 
 
     """
