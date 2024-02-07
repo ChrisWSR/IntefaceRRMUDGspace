@@ -25,10 +25,9 @@ class CameraThread(QThread):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.container_size = None
-        self.ThreadActive = True  # Flag to indicate if the thread should stop
+        #self.ThreadActive = True  
         self.detection = Detection()
-        # Connect the ImageUpdate signal of the Detection instance to 
-        # the process_frame method of this class
+        # Connect the ImageUpdate signal of the Detection instance to the process_frame method of this class
         self.detection.ImageUpdate.connect(self.process_frame)
 
 
@@ -40,6 +39,8 @@ class CameraThread(QThread):
             RuntimeError: If there is an error opening the camera.
     """
     def run(self):
+        self.ThreadActive = True  
+        self.detection.stop_camera = False
         try:
             # Start the thread and set up video capture from the camera(ID 0)
             cap = cv2.VideoCapture(0)
@@ -60,6 +61,9 @@ class CameraThread(QThread):
         self.ThreadActive = False
         self.detection.stop_camera = True
         self.quit()
+
+    def disconnect_image_updated(self):
+        self.ImageUpdated.disconnect()
 
 
     """
@@ -103,8 +107,6 @@ class MainWindow(QMainWindow):
         self.ui = uic.loadUi("interface.ui",self)
         # Apply the file style.json
         loadJsonStyle(self, self.ui) 
-
-
         self.cameraThread = CameraThread()
 
         self.turnOnCamera.clicked.connect(self.start_video)
@@ -113,13 +115,15 @@ class MainWindow(QMainWindow):
     
 
     def start_video(self):
+        self.cameraThread.ImageUpdated.connect(self.displayImage)
         self.cameraThread.set_container_size(self.cameraFramePage.size())
         self.cameraThread.start()
-        self.cameraThread.ImageUpdated.connect(self.displayImage)
 
 
     def stop_video(self):
+        self.cameraThread.disconnect_image_updated()
         self.cameraThread.stop()
+        self.clearImage()
    
     
 
@@ -154,6 +158,11 @@ class MainWindow(QMainWindow):
         pixmap = QPixmap.fromImage(scaled_image)
         self.cameraFramePage.setPixmap(pixmap)
         self.cameraFramePage.setAlignment(Qt.AlignCenter)
+
+    def clearImage(self):
+        # Set an empty pixmap to clear the image
+        self.cameraFramePage.setPixmap(QPixmap())
+        QApplication.processEvents()
 
     
 
