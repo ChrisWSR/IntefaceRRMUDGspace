@@ -123,7 +123,7 @@
              <string/>
             </property>
             <property name="pixmap">
-             <pixmap resource="../../Downloads/interface/interface/resources.qrc">:/logo/logo.png</pixmap>
+             <pixmap resource="resources.qrc">:/logo/logo.png</pixmap>
             </property>
            </widget>
           </item>
@@ -309,7 +309,7 @@
                 <string/>
                </property>
                <property name="icon">
-                <iconset resource="../../Downloads/interface/interface/resources.qrc">
+                <iconset resource="resources.qrc">
                  <normaloff>:/icons/icons/minus.svg</normaloff>:/icons/icons/minus.svg</iconset>
                </property>
                <property name="iconSize">
@@ -338,7 +338,7 @@
                 <string/>
                </property>
                <property name="icon">
-                <iconset resource="../../Downloads/interface/interface/resources.qrc">
+                <iconset resource="resources.qrc">
                  <normaloff>:/icons/icons/square.svg</normaloff>:/icons/icons/square.svg</iconset>
                </property>
                <property name="iconSize">
@@ -367,7 +367,7 @@
                 <string/>
                </property>
                <property name="icon">
-                <iconset resource="../../Downloads/interface/interface/resources.qrc">
+                <iconset resource="resources.qrc">
                  <normaloff>:/icons/icons/close.svg</normaloff>:/icons/icons/close.svg</iconset>
                </property>
                <property name="iconSize">
@@ -501,7 +501,7 @@
                    <string/>
                   </property>
                   <property name="icon">
-                   <iconset resource="../../Downloads/interface/interface/resources.qrc">
+                   <iconset resource="resources.qrc">
                     <normaloff>:/icons/icons/align.svg</normaloff>:/icons/icons/align.svg</iconset>
                   </property>
                   <property name="iconSize">
@@ -517,7 +517,6 @@
                   <property name="font">
                    <font>
                     <pointsize>11</pointsize>
-                    <weight>50</weight>
                     <bold>false</bold>
                    </font>
                   </property>
@@ -787,7 +786,7 @@
                        <string/>
                       </property>
                       <property name="icon">
-                       <iconset resource="../../Downloads/interface/interface/resources.qrc">
+                       <iconset resource="resources.qrc">
                         <normaloff>:/icons/icons/turnOn.svg</normaloff>:/icons/icons/turnOn.svg</iconset>
                       </property>
                      </widget>
@@ -798,7 +797,7 @@
                        <string/>
                       </property>
                       <property name="icon">
-                       <iconset resource="../../Downloads/interface/interface/resources.qrc">
+                       <iconset resource="resources.qrc">
                         <normaloff>:/icons/icons/turnOff.svg</normaloff>:/icons/icons/turnOff.svg</iconset>
                       </property>
                       <property name="iconSize">
@@ -815,7 +814,7 @@
                        <string/>
                       </property>
                       <property name="icon">
-                       <iconset resource="../../Downloads/interface/interface/resources.qrc">
+                       <iconset resource="resources.qrc">
                         <normaloff>:/icons/icons/stop.svg</normaloff>:/icons/icons/stop.svg</iconset>
                       </property>
                       <property name="iconSize">
@@ -832,7 +831,7 @@
                        <string/>
                       </property>
                       <property name="icon">
-                       <iconset resource="../../Downloads/interface/interface/resources.qrc">
+                       <iconset resource="resources.qrc">
                         <normaloff>:/icons/icons/capture.svg</normaloff>:/icons/icons/capture.svg</iconset>
                       </property>
                       <property name="iconSize">
@@ -873,6 +872,7 @@
   </widget>
  </widget>
  <resources>
+  <include location="resources.qrc"/>
   <include location="../../Downloads/interface/interface/resources.qrc"/>
  </resources>
  <connections/>

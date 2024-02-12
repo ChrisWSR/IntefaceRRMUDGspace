@@ -1,0 +1,36 @@
+# Usar una imagen base oficial de Python con Debian Buster
+FROM python:3.8-slim-buster
+
+# Establecer el directorio de trabajo en el contenedor
+WORKDIR /app
+
+# Instalar dependencias necesarias para PyQt5, OpenCV, PyTorch y Ultralytics YOLO
+RUN apt-get update && apt-get install -y \
+    libqt5widgets5 \
+    libqt5network5 \
+    libqt5gui5 \
+    libqt5core5a \
+    libqt5dbus5 \
+    qttools5-dev \
+    qttools5-dev-tools \
+    libopencv-dev \
+    python3-opencv \
+    ffmpeg libsm6 libxext6  # Dependencias adicionales que pueden ser necesarias para OpenCV
+    && rm -rf /var/lib/apt/lists/*
+
+# Instalar PyTorch (CPU version) y YOLOv5 de Ultralytics
+# Asegúrate de verificar la versión más reciente y compatible de PyTorch en https://pytorch.org
+RUN pip install --no-cache-dir torch torchvision torchaudio
+RUN pip install --no-cache-dir yolov5
+
+# Copiar el archivo de dependencias de Python al directorio de trabajo
+COPY requirements.txt ./
+
+# Instalar las dependencias de Python
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copiar el resto del código fuente de la aplicación al directorio de trabajo
+COPY . .
+
+# Comando para ejecutar la aplicación
+CMD ["python", "./IntefaceRRMUDGspace/main.py"]

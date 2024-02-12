@@ -1,0 +1,52 @@
+# Usar una imagen base oficial de Python con Debian Buster
+FROM python:3.8-slim-buster
+
+# Establecer el directorio de trabajo en el contenedor
+WORKDIR /app
+
+# Instalar dependencias necesarias para PyQt5, OpenCV y herramientas básicas para OpenVINO
+RUN apt-get update && apt-get install -y \
+    libqt5widgets5 \
+    libqt5network5 \
+    libqt5gui5 \
+    libqt5core5a \
+    libqt5dbus5 \
+    qttools5-dev \
+    qttools5-dev-tools \
+    libopencv-dev \
+    python3-opencv \
+    wget \
+    lsb-release \
+    cpio \
+    sudo \
+    libusb-1.0-0-dev \
+    build-essential \
+    && rm -rf /var/lib/apt/lists/*
+
+# Argumento para la versión de OpenVINO, puede ajustarse según necesidad
+ARG OPENVINO_VERSION=lts
+
+# Descargar e instalar OpenVINO
+RUN wget https://registrationcenter-download.intel.com/akdlm/irc_nas/17757/l_openvino_toolkit_p_${OPENVINO_VERSION}.tgz \
+    && tar -xzf l_openvino_toolkit_p_${OPENVINO_VERSION}.tgz \
+    && ./l_openvino_toolkit_p_${OPENVINO_VERSION}/install.sh --silent ./l_openvino_toolkit_p_${OPENVINO_VERSION}/silent.cfg \
+    && rm -rf ./l_openvino_toolkit_p_${OPENVINO_VERSION} \
+    && rm l_openvino_toolkit_p_${OPENVINO_VERSION}.tgz
+
+# Configurar el entorno de OpenVINO (ajustar según la versión instalada)
+ENV INTEL_OPENVINO_DIR /opt/intel/openvino_${OPENVINO_VERSION}
+ENV PATH $INTEL_OPENVINO_DIR/bin:$PATH
+ENV LD_LIBRARY_PATH $INTEL_OPENVINO_DIR/lib/intel64:$LD_LIBRARY_PATH
+ENV PYTHONPATH $INTEL_OPENVINO_DIR/python/python3.8:$INTEL_OPENVINO_DIR/python/python3:$PYTHONPATH
+
+# Copiar el archivo de dependencias de Python al directorio de trabajo
+COPY requirements.txt ./
+
+# Instalar las dependencias de Python
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copiar el resto del código fuente de la aplicación al directorio de trabajo
+COPY . .
+
+# Comando para ejecutar la aplicación
+CMD ["python", "./IntefaceRRMUDGspace/main.py"]
