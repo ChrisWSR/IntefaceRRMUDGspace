@@ -41,7 +41,7 @@
 					"fade":[
 						{
 							"active": true,
-							"duration":1000,
+							"duration":2000,
 							"easingCurve": "OutBack"
 						}
 					],
@@ -69,5 +69,22 @@
 			]
 	
 		}
+	],
+
+	"QPushButtonGroup": [
+		{
+			"Buttons": [
+				"homeBtn",
+				"cameraBtn",
+				"sensorsBtn",
+				"systemInfoBtn"
+			],
+			"Style":[{
+				"Active": "background-color: #3E3E3E; ",
+				"NotActive": ""
+			}]			
+		}
 	]
+	
+	
 }

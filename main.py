@@ -25,9 +25,9 @@ class CameraThread(QThread):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.container_size = None
+        #self.ThreadActive = True  
         self.detection = Detection()
-        # Connect the ImageUpdate signal of the Detection instance to 
-        # the process_frame method of this class
+        # Connect the ImageUpdate signal of the Detection instance to the process_frame method of this class
         self.detection.ImageUpdate.connect(self.process_frame)
 
 
@@ -39,13 +39,15 @@ class CameraThread(QThread):
             RuntimeError: If there is an error opening the camera.
     """
     def run(self):
+        self.ThreadActive = True  
+        self.detection.stop_camera = False
         try:
             # Start the thread and set up video capture from the camera(ID 0)
             cap = cv2.VideoCapture(0)
             if not cap.isOpened():
                 raise RuntimeError("Error opening the camera.")
 
-            while getattr(self, "thread", True):
+            while self.ThreadActive:
                 # Read a frame from the camera
                 ret, frame = cap.read()
                 if ret:
@@ -54,6 +56,14 @@ class CameraThread(QThread):
             cap.release()
         except Exception as e:
             print(f"An error occurred: {e}")
+
+    def stop(self):
+        self.ThreadActive = False
+        self.detection.stop_camera = True
+        self.quit()
+
+    def disconnect_image_updated(self):
+        self.ImageUpdated.disconnect()
 
 
     """
@@ -64,14 +74,14 @@ class CameraThread(QThread):
             frame: Input video frame to be processed.
     """
     def process_frame(self, frame):
-        # Convert the BGR frame to RGB and perform horizontal flipping
         Image_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-        flipped_image = cv2.flip(Image_rgb, 1)
-
-        # Adjust the size of the image based on the dimensions of the container
-        qt_image = QImage(flipped_image.data, flipped_image.shape[1], flipped_image.shape[0], QImage.Format_RGB888)
+        qt_image = QImage(Image_rgb.data, Image_rgb.shape[1], Image_rgb.shape[0], QImage.Format_RGB888)
         scaled_image = qt_image.scaled(self.container_size, Qt.IgnoreAspectRatio)
         self.ImageUpdated.emit(scaled_image)
+
+
+    
+
 
 
     """
@@ -96,22 +106,26 @@ class MainWindow(QMainWindow):
         super().__init__()
         self.ui = uic.loadUi("interface.ui",self)
         # Apply the file style.json
-        loadJsonStyle(self, self.ui)    
-
-
-        self.detection = Detection()
-        self.cameraThread = CameraThread(self.detection)
+        loadJsonStyle(self, self.ui) 
+        self.cameraThread = CameraThread()
 
         self.turnOnCamera.clicked.connect(self.start_video)
+        self.turnOffCamera.clicked.connect(self.stop_video)
 
     
 
     def start_video(self):
-        self.detection.start()
+        self.cameraThread.ImageUpdated.connect(self.displayImage)
         self.cameraThread.set_container_size(self.cameraFramePage.size())
         self.cameraThread.start()
-        self.cameraThread.ImageUpdated.connect(self.displayImage)
 
+
+    def stop_video(self):
+        self.cameraThread.disconnect_image_updated()
+        self.cameraThread.stop()
+        self.clearImage()
+   
+    
 
 
     """
@@ -145,11 +159,11 @@ class MainWindow(QMainWindow):
         self.cameraFramePage.setPixmap(pixmap)
         self.cameraFramePage.setAlignment(Qt.AlignCenter)
 
-    
-    def closeEvent(self, event):
-        self.detection.terminate()
-        self.cameraThread.terminate()
-        event.accept()
+    def clearImage(self):
+        # Set an empty pixmap to clear the image
+        self.cameraFramePage.setPixmap(QPixmap())
+        QApplication.processEvents()
+
     
 
 

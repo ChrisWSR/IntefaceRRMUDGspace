@@ -25,20 +25,29 @@ class Detection(QThread):
         self.video_capture = cv2.VideoCapture(0)
         self.video_capture.set(3, 640)
         self.video_capture.set(4, 640)
+        self.stopped = False
+
+        
 
     def run(self):
-        while True:
+        while not self.stopped:
             ret, frame = self.video_capture.read()
             if ret:
                 self._process_frame(frame)
+        self.video_capture.release()
 
 
     def process_frame(self, frame):
-            detection_results = self.yolo_model.predict(frame, imgsz=640, conf=0.80)
+            detection_results = self.yolo_model.predict(frame, imgsz=640, conf=0.25)
             annotated_image = detection_results[0].plot()
 
             # Emits the annotated frame to update the UI
             self.ImageUpdate.emit(annotated_image)
+    
+
+    def stop_camera(self):
+        self.stopped = True
+        self.wait() 
 
 
          
