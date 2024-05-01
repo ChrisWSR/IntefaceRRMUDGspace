@@ -1,13 +1,15 @@
+
 import sys
 import cv2
 from PyQt5 import uic
 from PyQt5.QtCore import QThread, pyqtSignal, Qt
 from PyQt5.QtGui import QImage, QPixmap
 from PyQt5.QtWidgets import QMainWindow, QApplication
-
+import numpy as np 
 from Custom_Widgets import *
-from detection import Detection
+from detection4 import Detection
 from resources_rc import *
+
 
 
 """
@@ -28,8 +30,9 @@ class CameraThread(QThread):
         #self.ThreadActive = True  
         self.detection = Detection()
         # Connect the ImageUpdate signal of the Detection instance to the process_frame method of this class
-        self.detection.ImageUpdate.connect(self.process_frame)
-
+        #self.detection.ImageUpdate.connect(self.process_frame)
+        
+        
 
     """
         The main execution method of the thread. Captures video frames, processes them using the Detection instance,
@@ -39,27 +42,26 @@ class CameraThread(QThread):
             RuntimeError: If there is an error opening the camera.
     """
     def run(self):
-        self.ThreadActive = True  
-        self.detection.stop_camera = False
+        self.ThreadActive = True
         try:
-            # Start the thread and set up video capture from the camera(ID 0)
             cap = cv2.VideoCapture(0)
             if not cap.isOpened():
                 raise RuntimeError("Error opening the camera.")
 
             while self.ThreadActive:
-                # Read a frame from the camera
                 ret, frame = cap.read()
                 if ret:
-                    # Process the frame using the Detection instance
+                    # Envía el frame capturado a Detection para su procesamiento
                     self.detection.process_frame(frame)
             cap.release()
         except Exception as e:
-            print(f"An error occurred: {e}")
+            print("An error occurred: {}".format(e))
+
+
 
     def stop(self):
         self.ThreadActive = False
-        self.detection.stop_camera = True
+        self.detection.stop_camera()
         self.quit()
 
     def disconnect_image_updated(self):
@@ -73,16 +75,8 @@ class CameraThread(QThread):
         Args:
             frame: Input video frame to be processed.
     """
-    def process_frame(self, frame):
-        Image_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-        qt_image = QImage(Image_rgb.data, Image_rgb.shape[1], Image_rgb.shape[0], QImage.Format_RGB888)
-        scaled_image = qt_image.scaled(self.container_size, Qt.IgnoreAspectRatio)
-        self.ImageUpdated.emit(scaled_image)
-
 
     
-
-
 
     """
         Sets the size of the container where the processed frame will be displayed.
@@ -95,6 +89,14 @@ class CameraThread(QThread):
 
 
 
+# Inserta esta función antes de la definición de la clase MainWindow
+def numpy_to_qimage(image_np):
+    if image_np.ndim == 3:
+        h, w, ch = image_np.shape
+        bytes_per_line = ch * w
+        return QImage(image_np.data, w, h, bytes_per_line, QImage.Format_RGB888).rgbSwapped()
+    else:
+        return None
 
 
 
@@ -108,23 +110,23 @@ class MainWindow(QMainWindow):
         # Apply the file style.json
         loadJsonStyle(self, self.ui) 
         self.cameraThread = CameraThread()
-
+        self.cameraThread.detection.ImageUpdate.connect(self.displayImage)
         self.turnOnCamera.clicked.connect(self.start_video)
         self.turnOffCamera.clicked.connect(self.stop_video)
 
     
 
     def start_video(self):
-        self.cameraThread.ImageUpdated.connect(self.displayImage)
+        #self.cameraThread.detection.ImageUpdate.connect(self.displayImage)
         self.cameraThread.set_container_size(self.cameraFramePage.size())
         self.cameraThread.start()
+        self.cameraThread.detection.start()  # Inicia el hilo de detección
 
 
     def stop_video(self):
-        self.cameraThread.disconnect_image_updated()
         self.cameraThread.stop()
-        self.clearImage()
-   
+        self.cameraThread.detection.stop_camera()  # Detiene el hilo de detección
+        self.clearImage()   
     
 
 
@@ -135,29 +137,38 @@ class MainWindow(QMainWindow):
         Args:
             Image: QImage to be displayed.
     """
+    
+    
     def displayImage(self, Image):
-        label_size = self.cameraFramePage.size()
-    
-        # Get the dimensions of the image and the container
-        image_size = Image.size()
-        container_width, container_height = label_size.width(), label_size.height()
-    
-        # Calculate the scale to maintain the aspect ratio
-        width_ratio = container_width / image_size.width()
-        height_ratio = container_height / image_size.height()
-        scale_factor = min(width_ratio, height_ratio)
-    
-        # Scale the image proportionally
-        scaled_image = Image.scaled(image_size * scale_factor, Qt.KeepAspectRatio)
+        if isinstance(Image, np.ndarray):  # Verifica si el objeto es un array de NumPy
+            qimage = numpy_to_qimage(Image)  # Convierte el array de NumPy a QImage
+        elif isinstance(Image, QImage):
+            qimage = Image  # No es necesario convertir
+        else:
+            print("El objeto proporcionado no es una instancia de QImage ni un array de NumPy")
+            return
         
-        # Calculate the area to center the image in the container
-        x_offset = (container_width - scaled_image.width()) / 2
-        y_offset = (container_height - scaled_image.height()) / 2
-    
-        # Create a pixmap and display it in the QLabel
+        label_size = self.cameraFramePage.size()
+
+        # Obtiene las dimensiones de la imagen y del contenedor
+        image_width = qimage.width()
+        image_height = qimage.height()
+        container_width, container_height = label_size.width(), label_size.height()
+
+        # Calcula el factor de escala para mantener la relación de aspecto
+        width_ratio = container_width / image_width
+        height_ratio = container_height / image_height
+        scale_factor = min(width_ratio, height_ratio)
+
+        # Escala la imagen proporcionalmente
+        scaled_image = qimage.scaled(int(image_width * scale_factor), int(image_height * scale_factor), Qt.KeepAspectRatio)
+        
+        # Crea un pixmap y lo muestra en QLabel
         pixmap = QPixmap.fromImage(scaled_image)
         self.cameraFramePage.setPixmap(pixmap)
         self.cameraFramePage.setAlignment(Qt.AlignCenter)
+
+
 
     def clearImage(self):
         # Set an empty pixmap to clear the image

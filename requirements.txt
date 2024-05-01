@@ -1,0 +1,4 @@
+opencv-python
+PyQt5
+ultralytics
+QT-PyQt-PySide-Custom-Widgets
