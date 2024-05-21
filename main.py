@@ -7,7 +7,8 @@ from PyQt5.QtGui import QImage, QPixmap
 from PyQt5.QtWidgets import QMainWindow, QApplication
 import numpy as np 
 from Custom_Widgets import *
-from detection4 import Detection
+from detection-ros import Detection
+#from detection4 import Detection
 from resources_rc import *
 
 
