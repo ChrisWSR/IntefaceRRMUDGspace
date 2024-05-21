@@ -4,9 +4,9 @@ from PyQt5 import uic
 from PyQt5.QtCore import QThread, pyqtSignal, Qt
 from PyQt5.QtGui import QImage, QPixmap
 from PyQt5.QtWidgets import QMainWindow, QApplication
-
+from detection_ros import Detection
 from Custom_Widgets import *
-from detection import Detection
+#from detection import Detection
 from resources_rc import *
 
 
