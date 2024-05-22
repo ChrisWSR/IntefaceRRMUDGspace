@@ -1,0 +1,7 @@
+env/
+logs/
+Rocas/
+ToClean/
+rocas_limpias/
+clean/
+__pycache__/
