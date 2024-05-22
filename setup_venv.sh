@@ -38,8 +38,8 @@ else
 fi
 
 # Instalar bibliotecas adicionales específicas
-echo "Instalando ultralytics, opencv-python, PyQt5, y QT-PyQt-PySide-Custom-Widgets..."
+echo "Instalando ultralytics, opencv-python, PyQt5, QT-PyQt-PySide-Custom-Widgets, y otras librerías..."
 pip install ultralytics==8.0.230 opencv-python PyQt5 QT-PyQt-PySide-Custom-Widgets sip==6.6.2 pyqt5 PySide6
-
+pip install cv_bridge rospy sensor_msgs
 
 echo "Configuración completa. El entorno virtual está listo para usar."
